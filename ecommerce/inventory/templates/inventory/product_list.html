@@ -1,0 +1,27 @@
+<!-- inventory/templates/inventory/product_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} - Product Details</title>
+</head>
+<body>
+    <h1>{{ product.name }}</h1>
+    <p>Category: {{ product.category }}</p>
+    <p>Price: ${{ product.price }}</p>
+    <p>Stock Quantity: {{ product.stock_quantity }}</p>
+    <p>Popularity Score: {{ product.popularity_score }}</p>
+
+    {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 300px;">
+    {% endif %}
+
+    <!-- Admin Backend Button - Visible only to staff or superusers -->
+    {% if user.is_authenticated and user.is_staff %}
+        <p><a href="{% url 'admin:index' %}">Go to Admin Backend</a></p>
+    {% endif %}
+
+    <p><a href="{% url 'logout' %}">Log out</a></p>
+</body>
+</html>
