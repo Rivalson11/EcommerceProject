@@ -22,13 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-0_e%@@xkxzmb3@ljmls9fph2$1tj^@3oexjd-$q#7v(+9zq32d'
 
-AUTH_USER_MODEL = 'inventory.CustomUser'
+AUTH_USER_MODEL = 'users.User'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGIN_REDIRECT_URL = 'products'
+LOGOUT_REDIRECT_URL = 'login'
 
 # Application definition
 
@@ -39,6 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Custom apps
+    "users",
+    "purchasing",
+    "inventory"
 ]
 
 MIDDLEWARE = [

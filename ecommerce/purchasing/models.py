@@ -5,7 +5,7 @@ from django.utils import timezone
 
 
 class Purchase(models.Model):
-    customer = models.ForeignKey(User, on_delete=models.SET_NULL)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    quantity = models.PositiveIntegerField(default=1)
     date = models.DateTimeField(default=timezone.now)
