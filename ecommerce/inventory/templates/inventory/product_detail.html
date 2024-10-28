@@ -1,0 +1,38 @@
+<!-- inventory/templates/inventory/product_detail.html -->
+{% extends "core/base.html" %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <!-- Product Image -->
+                <img src="https://via.placeholder.com/600x400.png?text=Product+Image"
+                     class="card-img-top"
+                     alt="{{ product.name }}"
+                     style="height: 400px; object-fit: cover;">
+
+                <div class="card-body">
+                    <!-- Product Title -->
+                    <h2 class="card-title">{{ product.name }}</h2>
+
+                    <!-- Product Details -->
+                    <p class="card-text"><strong>Category:</strong> {{ product.category }}</p>
+                    <p class="card-text"><strong>Price:</strong> ${{ product.price }}</p>
+                    <p class="card-text"><strong>Stock Quantity:</strong> {{ product.stock_quantity }}</p>
+                    <p class="card-text"><strong>Popularity Score:</strong> {{ product.popularity_score }}</p>
+
+                    <!-- Additional Information or Description -->
+                    <p class="card-text"><strong>Description:</strong> {{ product.description|default:"No description available." }}</p>
+                </div>
+
+                <div class="card-footer text-center">
+                    <a href="{% url 'inventory:products' %}" class="btn btn-secondary">Back to Products</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

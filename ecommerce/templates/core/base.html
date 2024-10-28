@@ -1,3 +1,4 @@
+<!-- templates/core/base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +13,7 @@
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{% url 'inventory:products' %}">Ecommerce</a>
+        <a class="navbar-brand" href="{% url 'inventory:products' %}">Zulzi</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -23,6 +24,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                     </li>
+                    <!-- Show Admin Site Link for Staff Users -->
+                    {% if user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'admin:index' %}">Admin Site</a>
+                        </li>
+                    {% endif %}
                 {% else %}
                     <!-- Show Login and Register if user is not logged in -->
                     <li class="nav-item">
