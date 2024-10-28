@@ -1,0 +1,40 @@
+# Python files
+*.pyc
+__pycache__/
+
+# Environment variables
+.env
+
+# Django specific
+db.sqlite3  # Ignore SQLite database
+media/      # Ignore media folder if you're storing uploads locally
+staticfiles/  # Ignore collected static files
+
+# Migrations
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Virtual environments
+venv/
+env/
+*.egg-info/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+
+# OS-specific files
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# Docker
+*.env
+docker-compose.override.yml
+__pycache__/
+.dockerignore
+Dockerfile
