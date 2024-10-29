@@ -6,6 +6,8 @@ __pycache__/
 .env
 
 # Django specific
+*.sqlite3
+*.sqlite
 media/      # Ignore media folder if you're storing uploads locally
 staticfiles/  # Ignore collected static files
 
