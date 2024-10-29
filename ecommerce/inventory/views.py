@@ -72,11 +72,6 @@ class ProductListView(LoginRequiredMixin, ListView):
             categories__in=combined_category_counts.keys()
         ).distinct().order_by('-weighted_score', '-popularity_score')[:4]
 
-        print(purchase_category_counts)
-        print(recommendations.values("weighted_score", "name"))
-        print(ProductCategories.objects.all().values("id", "name"))
-        print(combined_category_counts)
-        print(recommendations.values("name"))
         return recommendations[:4]
 
 
