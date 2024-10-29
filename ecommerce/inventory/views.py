@@ -19,7 +19,7 @@ class ProductListView(LoginRequiredMixin, ListView):
         return Product.objects.prefetch_related('categories').all()
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'inventory/product_detail.html'  # Template to render
     context_object_name = 'product'  # Use 'product' as the context variable
@@ -36,7 +36,7 @@ class ProductCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ProductEditView(UpdateView):
+class ProductEditView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = "inventory/product_edit.html"
@@ -45,7 +45,7 @@ class ProductEditView(UpdateView):
         return reverse_lazy('inventory:products')
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
     model = Product
     template_name = "inventory/product_confirm_delete.html"
 

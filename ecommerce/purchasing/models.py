@@ -9,3 +9,16 @@ class Purchase(models.Model):
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(default=1)
     date = models.DateTimeField(default=timezone.now)
+
+
+class ShoppingCart(models.Model):
+    customer = models.OneToOneField(User, on_delete=models.CASCADE)
+
+
+class PrePurchase(Purchase):
+    shopping_cart = models.ForeignKey(ShoppingCart, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('shopping_cart', 'product')
+
+

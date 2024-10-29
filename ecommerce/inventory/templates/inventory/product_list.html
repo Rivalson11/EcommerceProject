@@ -18,8 +18,17 @@
         <div class="d-flex flex-wrap">
             {% for product in products %}
             <div class="product-card">
-                <div class="card h-100 shadow-sm">
-                    <img src="https://via.placeholder.com/200x150.png?text=Product+Image" class="card-img-top" alt="Product Image" style="height: 200px; object-fit: cover;">
+                <div class="card h-100 shadow-sm position-relative">
+                    <!-- Product Image with Overlay -->
+                    <div class="product-image-wrapper">
+                        <img src="https://via.placeholder.com/200x150.png?text=Product+Image" class="card-img-top product-image" alt="Product Image" style="height: 200px; object-fit: cover;">
+
+                        <!-- Add to Cart Overlay -->
+                        <div class="add-to-cart-overlay" onclick="openAddToCartModal({{ product.id }})">
+                            <span class="add-to-cart-text">Add to Cart</span>
+                        </div>
+                    </div>
+
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="card-text mb-1"><strong>Categories:</strong>
@@ -50,20 +59,99 @@
             <a href="?page={{ page_obj.next_page_number }}" class="btn btn-primary btn-sm mx-2">Next</a>
         {% endif %}
     </div>
-
 </div>
-{% endblock %}
+
+<!-- Modal for Add to Cart -->
+<div class="modal fade" id="addToCartModal" tabindex="-1" role="dialog" aria-labelledby="addToCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="addToCartModalContent">
+            <!-- Content will be loaded here via AJAX -->
+        </div>
+    </div>
+</div>
 
 <style>
-    /* Scrollable container with fixed height */
-    .product-list-container {
-        max-height: 600px; /* Set the desired height */
-        overflow-y: auto;
-    }
-    /* Each product card has a fixed width to ensure 5 items per row */
-    .product-card {
-        width: 20%; /* 20% width for 5 items per row */
-        padding: 10px;
-        box-sizing: border-box;
-    }
+.product-image-wrapper {
+    position: relative;
+}
+
+.product-image {
+    transition: opacity 0.3s ease;
+}
+
+.add-to-cart-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.add-to-cart-text {
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.product-image-wrapper:hover .add-to-cart-overlay {
+    opacity: 1;
+}
+
+.product-image-wrapper:hover .product-image {
+    opacity: 0.7;
+}
 </style>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openAddToCartModal(productId) {
+    fetch(`/add-to-cart-modal/${productId}/`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('addToCartModalContent').innerHTML = html;
+            $('#addToCartModal').modal('show');
+            document.getElementById('prepurchaseForm').onsubmit = function(e) {
+                e.preventDefault();
+                submitPrepurchaseForm(productId);
+            };
+        })
+        .catch(error => {
+            console.error("Error fetching the modal content:", error);
+        });
+}
+
+function submitPrepurchaseForm(productId) {
+    const form = document.getElementById('prepurchaseForm');
+    const formData = new FormData(form);
+
+    fetch(`/add-to-cart-modal/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Redirect to the product list page on success
+            window.location.href = "{% url 'inventory:products' %}";
+        } else {
+            alert('Error: ' + data.errors);
+        }
+    })
+    .catch(error => console.error('Error adding item to cart:', error));
+}
+</script>
+{% endblock %}
+
