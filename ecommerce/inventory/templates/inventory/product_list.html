@@ -4,31 +4,62 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="text-center mb-4">Our Products</h2>
-    <div class="row">
-        {% for product in products %}
-        <div class="col-md-3 mb-4">
-            <div class="card h-100 shadow-sm">
-                <!-- Placeholder Product Image -->
-                <img src="https://via.placeholder.com/200x150.png?text=Product+Image" class="card-img-top" alt="Product Image" style="height: 200px; object-fit: cover;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Our Products</h2>
 
-                <div class="card-body">
-                    <!-- Product Title -->
-                    <h5 class="card-title">{{ product.name }}</h5>
+        <!-- Add Product Button, visible only to superusers -->
+        {% if user.is_staff %}
+            <a href="{% url 'inventory:product_add' %}" class="btn btn-success">Add Product</a>
+        {% endif %}
+    </div>
 
-                    <!-- Product Details -->
-                    <p class="card-text mb-1"><strong>Category:</strong> {{ product.category }}</p>
-                    <p class="card-text mb-1"><strong>Price:</strong> ${{ product.price }}</p>
-                    <p class="card-text mb-1"><strong>Stock:</strong> {{ product.stock_quantity }}</p>
-                    <p class="card-text"><strong>Popularity:</strong> {{ product.popularity_score }}</p>
-                </div>
-
-                <div class="card-footer text-center">
-                    <a href="{% url 'inventory:product_detail' product.pk %}" class="btn btn-primary">View Details</a>
+    <!-- Scrollable Product List Container -->
+    <div class="product-list-container">
+        <div class="d-flex flex-wrap">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="card h-100 shadow-sm">
+                    <img src="https://via.placeholder.com/200x150.png?text=Product+Image" class="card-img-top" alt="Product Image" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text mb-1"><strong>Category:</strong> {{ product.category }}</p>
+                        <p class="card-text mb-1"><strong>Price:</strong> ${{ product.price }}</p>
+                        <p class="card-text mb-1"><strong>Stock:</strong> {{ product.quantity }}</p>
+                        <p class="card-text"><strong>Popularity:</strong> {{ product.popularity_score }}</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'inventory:product_detail' product.pk %}" class="btn btn-primary">View Details</a>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
+
+    <!-- Pagination controls -->
+    <div class="d-flex justify-content-center mt-5 fixed-bottom pb-1 pt-1 card h-10 shadow-sm">
+        <span class="align-self-center">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-primary btn-sm mx-2">Previous</a>
+        {% endif %}
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-primary btn-sm mx-2">Next</a>
+        {% endif %}
+    </div>
+
 </div>
 {% endblock %}
+
+<style>
+    /* Scrollable container with fixed height */
+    .product-list-container {
+        max-height: 600px; /* Set the desired height */
+        overflow-y: auto;
+    }
+    /* Each product card has a fixed width to ensure 5 items per row */
+    .product-card {
+        width: 20%; /* 20% width for 5 items per row */
+        padding: 10px;
+        box-sizing: border-box;
+    }
+</style>
