@@ -22,7 +22,45 @@
         </div>
     </div>
 
-    <!-- Product List Container with Bootstrap Row and Columns -->
+    <!-- Recommended Products Section -->
+    <h2>Recommended Products</h2>
+    <div class="row">
+        {% for product in recommended_products %}
+        <div class="col-md-3 mb-4 d-flex">
+            <div class="card h-100 shadow-sm position-relative w-100">
+                <!-- Product Image with Overlay -->
+                <div class="product-image-wrapper">
+                    <img src="{% static 'images/cart-icon.png' %}" class="card-img-top product-image" alt="Product Image" style="height: 200px; object-fit: cover;">
+                    <div class="add-to-cart-overlay" onclick="openAddToCartModal({{ product.id }})">
+                        <span class="add-to-cart-text">Add to Cart</span>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text mb-1"><strong>Categories:</strong>
+                        {% for category in product.categories.all %}
+                            {{ category.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                    <p class="card-text mb-1"><strong>Price:</strong> ${{ product.price }}</p>
+                    <p class="card-text mb-1"><strong>Stock:</strong> {{ product.quantity }}</p>
+                    <p class="card-text"><strong>Popularity:</strong> {{ product.popularity_score }}</p>
+                </div>
+
+                <div class="card-footer text-center">
+                    <a href="{% url 'inventory:product_detail' product.pk %}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Divider Line -->
+    <hr class="my-5">
+
+    <!-- All Products Section -->
+    <h2>All Products</h2>
     <div class="row">
         {% for product in products %}
         <div class="col-md-3 mb-4 d-flex">
@@ -54,6 +92,7 @@
         </div>
         {% endfor %}
     </div>
+
 </div>
 
 <!-- Pagination Panel at the Bottom -->

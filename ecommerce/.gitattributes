@@ -1,0 +1,7 @@
+# Enforce LF line endings
+* text=auto
+
+# Keep LF for specific files (useful for config files)
+*.sh text eol=lf
+*.yml text eol=lf
+*.xml text eol=lf
