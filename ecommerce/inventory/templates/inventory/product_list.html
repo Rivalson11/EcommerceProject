@@ -22,7 +22,11 @@
                     <img src="https://via.placeholder.com/200x150.png?text=Product+Image" class="card-img-top" alt="Product Image" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text mb-1"><strong>Category:</strong> {{ product.category }}</p>
+                        <p class="card-text mb-1"><strong>Categories:</strong>
+                            {% for category in product.categories.all %}
+                                {{ category.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
                         <p class="card-text mb-1"><strong>Price:</strong> ${{ product.price }}</p>
                         <p class="card-text mb-1"><strong>Stock:</strong> {{ product.quantity }}</p>
                         <p class="card-text"><strong>Popularity:</strong> {{ product.popularity_score }}</p>

@@ -24,6 +24,7 @@
                             {{ form.product_id }}
                             {{ form.product_id.errors }}
                         </div>
+
                         <!-- Product Name Field -->
                         <div class="form-group">
                             {{ form.name.label_tag }}
@@ -31,11 +32,13 @@
                             {{ form.name.errors }}
                         </div>
 
-                        <!-- Category Field -->
+                        <!-- Categories Field (formerly Category) -->
                         <div class="form-group">
-                            {{ form.category.label_tag }}
-                            {{ form.category }}
-                            {{ form.category.errors }}
+                            {{ form.categories.label_tag }}
+                            <div>
+                                {{ form.categories }}
+                            </div>
+                            {{ form.categories.errors }}
                         </div>
 
                         <!-- Price Field -->

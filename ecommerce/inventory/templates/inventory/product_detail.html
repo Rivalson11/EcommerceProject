@@ -1,4 +1,3 @@
-<!-- inventory/templates/inventory/product_detail.html -->
 {% extends "core/base.html" %}
 
 {% block title %}{{ product.name }}{% endblock %}
@@ -19,7 +18,7 @@
                     <h2 class="card-title">{{ product.name }}</h2>
 
                     <!-- Product Details -->
-                    <p class="card-text"><strong>Category:</strong> {{ product.category }}</p>
+                    <p class="card-text"><strong>Categories:</strong> {{ product.category_list }}</p>
                     <p class="card-text"><strong>Price:</strong> ${{ product.price }}</p>
                     <p class="card-text"><strong>Stock Quantity:</strong> {{ product.quantity }}</p>
                     <p class="card-text"><strong>Popularity Score:</strong> {{ product.popularity_score }}</p>
@@ -28,8 +27,14 @@
                     <p class="card-text"><strong>Description:</strong> {{ product.description|default:"No description available." }}</p>
                 </div>
 
+                <!-- Footer with Back, Edit, and Delete Buttons -->
                 <div class="card-footer text-center">
                     <a href="{% url 'inventory:products' %}" class="btn btn-secondary">Back to Products</a>
+
+                    {% if user.is_staff %}
+                        <a href="{% url 'inventory:product_edit' product.pk %}" class="btn btn-warning ml-2">Edit</a>
+                        <a href="{% url 'inventory:product_delete' product.pk %}" class="btn btn-danger ml-2">Delete</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
