@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+
+{% block title %}Add New Product{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2>Add New Product</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Back to Products Button -->
+                    <div class="text-left mb-3">
+                        <a href="{% url 'inventory:products' %}" class="btn btn-secondary">Back to Products</a>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            {{ form.product_id.label_tag }}
+                            {{ form.product_id }}
+                            {{ form.product_id.errors }}
+                        </div>
+
+                        <!-- Product Name Field -->
+                        <div class="form-group">
+                            {{ form.name.label_tag }}
+                            {{ form.name }}
+                            {{ form.name.errors }}
+                        </div>
+
+                        <!-- Categories Field (formerly Category) -->
+                        <div class="form-group">
+                            {{ form.categories.label_tag }}
+                            <div>
+                                {{ form.categories }}
+                            </div>
+                            {{ form.categories.errors }}
+                        </div>
+
+                        <!-- Price Field -->
+                        <div class="form-group">
+                            {{ form.price.label_tag }}
+                            {{ form.price }}
+                            {{ form.price.errors }}
+                        </div>
+
+                        <!-- Stock Quantity Field -->
+                        <div class="form-group">
+                            {{ form.quantity.label_tag }}
+                            {{ form.quantity }}
+                            {{ form.quantity.errors }}
+                        </div>
+
+                        <!-- Popularity Score Field -->
+                        <div class="form-group">
+                            {{ form.popularity_score.label_tag }}
+                            {{ form.popularity_score }}
+                            {{ form.popularity_score.errors }}
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary btn-block">Create Product</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

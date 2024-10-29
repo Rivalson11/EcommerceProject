@@ -6,4 +6,7 @@ app_name = 'inventory'
 urlpatterns = [
     path('products', views.ProductListView.as_view(), name='products'),
     path('product/<int:pk>/', views.ProductDetailView.as_view(), name='product_detail'),
+    path('product/add/', views.ProductCreateView.as_view(), name='product_add'),
+    path('product/<int:pk>/edit/', views.ProductEditView.as_view(), name='product_edit'),
+    path('product/<int:pk>/delete/', views.ProductDeleteView.as_view(), name='product_delete'),
 ]
