@@ -147,7 +147,10 @@ function submitPrepurchaseForm(productId) {
             // Redirect to the product list page on success
             window.location.href = "{% url 'inventory:products' %}";
         } else {
-            alert('Error: ' + data.errors);
+            // Display error in the error container
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = data.errors.quantity.join("<br>");  // Format error message
+            errorContainer.classList.remove("d-none");
         }
     })
     .catch(error => console.error('Error adding item to cart:', error));

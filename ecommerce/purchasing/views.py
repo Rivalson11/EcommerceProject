@@ -1,9 +1,11 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import Product, ShoppingCart, PrePurchase
-from .forms import PrePurchaseForm
+from django.db import transaction
 from django.db.models import F
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
+
+from .forms import PrePurchaseForm
+from .models import Product, ShoppingCart, PrePurchase
 
 
 @login_required
@@ -12,16 +14,27 @@ def add_to_cart_modal(request, product_id):
     cart, created = ShoppingCart.objects.get_or_create(customer=request.user)
 
     if request.method == 'POST':
-        form = PrePurchaseForm(request.POST)
+        form = PrePurchaseForm(request.POST, product=product)
         if form.is_valid():
-            if PrePurchase.objects.filter(shopping_cart=cart, product=product).exists():
-                PrePurchase.objects.filter(shopping_cart=cart, product=product).update(quantity=F('quantity') + form.cleaned_data['quantity'])
-            else:
-                prepurchase = form.save(commit=False)
-                prepurchase.customer = request.user
-                prepurchase.shopping_cart = cart
-                prepurchase.product = product
-                prepurchase.save()
+            quantity_to_add = form.cleaned_data['quantity']
+
+            with transaction.atomic():
+                # Update or create PrePurchase entry
+                prepurchase, created = PrePurchase.objects.get_or_create(
+                    shopping_cart=cart,
+                    product=product,
+                    defaults={'customer': request.user, 'quantity': quantity_to_add}
+                )
+
+                if not created:
+                    # If it exists, update the quantity atomically
+                    prepurchase.quantity = F('quantity') + quantity_to_add
+                    prepurchase.save()
+
+                # Reduce product stock
+                product.quantity = F('quantity') - quantity_to_add
+                product.save(update_fields=['quantity'])
+
             return JsonResponse({'success': True, 'message': 'Item added to cart'})
         else:
             return JsonResponse({'success': False, 'errors': form.errors}, status=400)

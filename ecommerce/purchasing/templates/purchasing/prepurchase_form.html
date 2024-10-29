@@ -1,3 +1,4 @@
+<!-- inventory/templates/inventory/prepurchase_form.html -->
 <div class="modal-header">
     <h5 class="modal-title">Add {{ product.name }} to Cart</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -5,6 +6,9 @@
     </button>
 </div>
 <div class="modal-body">
+    <!-- Error message container -->
+    <div id="errorContainer" class="alert alert-danger d-none"></div>
+
     <form id="prepurchaseForm" method="post">
         {% csrf_token %}
         {{ form.as_p }}
