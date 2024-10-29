@@ -1,0 +1,44 @@
+<!-- purchasing/templates/purchasing/purchase_confirmation.html -->
+{% extends "core/base.html" %}
+
+{% block title %}Confirm Purchase{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Confirm Your Purchase</h2>
+
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.product.price }}</td>
+                <td>${{ item.total_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="3" class="text-right">Total:</th>
+                <th>${{ total_value }}</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- Purchase Confirmation Form -->
+    <form method="post" action="{% url 'purchasing:purchase' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Confirm Purchase</button>
+        <a href="{% url 'inventory:products' %}" class="btn btn-secondary ml-3">Cancel</a>
+    </form>
+</div>
+{% endblock %}

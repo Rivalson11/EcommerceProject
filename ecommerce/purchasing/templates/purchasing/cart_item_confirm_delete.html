@@ -1,0 +1,17 @@
+<!-- purchasing/templates/purchasing/cart_item_confirm_delete.html -->
+{% extends "core/base.html" %}
+
+{% block title %}Confirm Remove Item{% endblock %}
+
+{% block content %}
+<div class="container mt-4 text-center">
+    <h2>Remove Item</h2>
+    <p>Are you sure you want to remove {{ cart_item.product.name }} from your cart?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Remove</button>
+        <a href="{% url 'purchasing:purchase' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
