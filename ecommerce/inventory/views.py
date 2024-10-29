@@ -70,7 +70,7 @@ class ProductListView(LoginRequiredMixin, ListView):
         # Step 3: Order by weighted score first, then by popularity
         recommendations = annotated_products.filter(
             categories__in=combined_category_counts.keys()
-        ).distinct().order_by('-weighted_score', '-popularity_score')[:4]
+        ).exclude(quantity=0).distinct().order_by('-weighted_score', '-popularity_score')[:4]
 
         return recommendations[:4]
 
