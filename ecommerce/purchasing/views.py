@@ -3,11 +3,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import F, FloatField, ExpressionWrapper, Sum
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.views import View
+from django.views.generic import ListView, DeleteView
 
 from .forms import PrePurchaseForm
-from .models import Product, ShoppingCart, PrePurchase
+from .models import Product, ShoppingCart, PrePurchase, Purchase
 
 
 @login_required
@@ -47,6 +49,31 @@ def add_to_cart_modal(request, product_id):
     return render(request, 'purchasing/prepurchase_form.html', {'form': form, 'product': product})
 
 
+class CartItemDeleteView(LoginRequiredMixin, DeleteView):
+    model = PrePurchase
+    template_name = 'purchasing/cart_item_confirm_delete.html'
+    context_object_name = 'cart_item'
+
+    def get_success_url(self):
+        return reverse_lazy('purchasing:shopping_cart')
+
+    def get_queryset(self):
+        # Ensure only items in the user's cart can be deleted
+        return super().get_queryset().filter(shopping_cart__customer=self.request.user)
+
+    def form_valid(self, form):
+        # Retrieve the cart item to be deleted
+        self.object = self.get_object()
+        product = self.object.product
+        quantity_to_restock = self.object.quantity
+
+        # Perform the restock
+        with transaction.atomic():
+            product.quantity = F('quantity') + quantity_to_restock
+            product.save(update_fields=['quantity'])
+            return super().form_valid(form)
+
+
 class ShoppingCartView(LoginRequiredMixin, ListView):
     model = PrePurchase
     template_name = 'purchasing/shopping_cart.html'
@@ -67,3 +94,51 @@ class ShoppingCartView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['total_value'] = context['cart_items'].aggregate(grand_total=Sum('total_price'))['grand_total']
         return context
+
+class PurchaseView(LoginRequiredMixin, View):
+    template_name = 'purchasing/purchase_confirmation.html'
+    success_url = reverse_lazy('purchasing:purchase_complete')
+
+    def get(self, request, *args, **kwargs):
+        # Retrieve the cart and cart items
+        cart = get_object_or_404(ShoppingCart, customer=request.user)
+        cart_items = cart.prepurchase_set.all().annotate(
+            total_price=ExpressionWrapper(
+                F('product__price') * F('quantity'),
+                output_field=FloatField()
+            )
+        )
+
+        # Calculate the total cart value
+        total_value = cart_items.aggregate(grand_total=Sum('total_price'))['grand_total']
+
+        # Render the confirmation page
+        return render(request, self.template_name, {
+            'cart_items': cart_items,
+            'total_value': total_value
+        })
+
+    def post(self, request, *args, **kwargs):
+        # Retrieve the cart and cart items
+        cart = get_object_or_404(ShoppingCart, customer=request.user)
+        cart_items = cart.prepurchase_set.all()
+
+        # Process the purchase in an atomic transaction
+        with transaction.atomic():
+            # Create Purchase entries for each PrePurchase item in the cart
+            purchases = [
+                Purchase(
+                    customer=request.user,
+                    product=item.product,
+                    quantity=item.quantity,
+                )
+                for item in cart_items
+            ]
+            Purchase.objects.bulk_create(purchases)  # Save all purchases in bulk
+
+            # Delete the PrePurchase items and the ShoppingCart
+            cart_items.delete()
+            cart.delete()
+
+        # Redirect to the "Purchase Complete" page
+        return redirect(self.success_url)

@@ -4,17 +4,13 @@
 {% block title %}Product List{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 pb-5" style="padding-bottom: 80px;">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <!-- Left-aligned Title -->
         <h2>Our Products</h2>
-
-        <!-- Right-aligned Add Product Button and Shopping Cart -->
         <div class="d-flex align-items-center ml-auto">
             {% if user.is_staff %}
                 <a href="{% url 'inventory:product_add' %}" class="btn btn-success mr-3">Add Product</a>
             {% endif %}
-
             <a href="{% url 'purchasing:shopping_cart' %}" class="position-relative">
                 <img src="{% static 'images/cart-icon.png' %}" alt="Cart" style="width: 50px;">
                 {% if cart_items %}
@@ -26,52 +22,49 @@
         </div>
     </div>
 
-
-
-    <!-- Scrollable Product List Container -->
-    <div class="product-list-container">
-        <div class="d-flex flex-wrap">
-            {% for product in products %}
-            <div class="product-card">
-                <div class="card h-100 shadow-sm position-relative">
-                    <!-- Product Image with Overlay -->
-                    <div class="product-image-wrapper">
-                        <img src="https://via.placeholder.com/200x150.png?text=Product+Image" class="card-img-top product-image" alt="Product Image" style="height: 200px; object-fit: cover;">
-
-                        <!-- Add to Cart Overlay -->
-                        <div class="add-to-cart-overlay" onclick="openAddToCartModal({{ product.id }})">
-                            <span class="add-to-cart-text">Add to Cart</span>
-                        </div>
-                    </div>
-
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text mb-1"><strong>Categories:</strong>
-                            {% for category in product.categories.all %}
-                                {{ category.name }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </p>
-                        <p class="card-text mb-1"><strong>Price:</strong> ${{ product.price }}</p>
-                        <p class="card-text mb-1"><strong>Stock:</strong> {{ product.quantity }}</p>
-                        <p class="card-text"><strong>Popularity:</strong> {{ product.popularity_score }}</p>
-                    </div>
-                    <div class="card-footer text-center">
-                        <a href="{% url 'inventory:product_detail' product.pk %}" class="btn btn-primary">View Details</a>
+    <!-- Product List Container with Bootstrap Row and Columns -->
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-3 mb-4 d-flex">
+            <div class="card h-100 shadow-sm position-relative w-100">
+                <!-- Product Image with Overlay -->
+                <div class="product-image-wrapper">
+                    <img src="{% static 'images/cart-icon.png' %}" class="card-img-top product-image" alt="Product Image" style="height: 200px; object-fit: cover;">
+                    <div class="add-to-cart-overlay" onclick="openAddToCartModal({{ product.id }})">
+                        <span class="add-to-cart-text">Add to Cart</span>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
 
-    <!-- Pagination controls -->
-    <div class="d-flex justify-content-center mt-5 fixed-bottom pb-1 pt-1 card h-10 shadow-sm">
-        <span class="align-self-center">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text mb-1"><strong>Categories:</strong>
+                        {% for category in product.categories.all %}
+                            {{ category.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                    <p class="card-text mb-1"><strong>Price:</strong> ${{ product.price }}</p>
+                    <p class="card-text mb-1"><strong>Stock:</strong> {{ product.quantity }}</p>
+                    <p class="card-text"><strong>Popularity:</strong> {{ product.popularity_score }}</p>
+                </div>
+
+                <div class="card-footer text-center">
+                    <a href="{% url 'inventory:product_detail' product.pk %}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Pagination Panel at the Bottom -->
+<div class="d-flex justify-content-center align-items-center fixed-bottom pb-2 pt-2 bg-light shadow-sm">
+    <span class="align-self-center mr-3">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    <div class="d-inline-flex">
         {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-primary btn-sm mx-2">Previous</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-primary btn-sm mx-1">← Prev</a>
         {% endif %}
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-primary btn-sm mx-2">Next</a>
+            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-primary btn-sm mx-1">Next →</a>
         {% endif %}
     </div>
 </div>
@@ -85,6 +78,7 @@
     </div>
 </div>
 
+<!-- Custom CSS for Product Image Overlay -->
 <style>
 .product-image-wrapper {
     position: relative;
@@ -124,8 +118,8 @@
     opacity: 0.7;
 }
 </style>
-
 {% endblock %}
+
 
 {% block scripts %}
 <script>

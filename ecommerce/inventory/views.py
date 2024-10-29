@@ -14,7 +14,7 @@ class ProductListView(LoginRequiredMixin, ListView):
     model = Product
     template_name = 'inventory/products.html'  # Specify the template
     context_object_name = 'products'  # Name for the list in the template
-    paginate_by = 10  # Optional: add pagination if there are many products
+    paginate_by = 12  # Optional: add pagination if there are many products
 
     def get_queryset(self):
         return Product.objects.prefetch_related('categories').all()
