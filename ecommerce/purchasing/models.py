@@ -19,6 +19,8 @@ class PrePurchase(Purchase):
     shopping_cart = models.ForeignKey(ShoppingCart, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('shopping_cart', 'product')
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'category'], name='unique_product_category')
+        ]
 
 
