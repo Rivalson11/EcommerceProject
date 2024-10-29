@@ -4,6 +4,7 @@ from django.views.generic import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from core.mixins import AdminRequiredMixin
+from purchasing.models import ShoppingCart
 from .forms import ProductForm
 
 from .models import Product
@@ -17,6 +18,12 @@ class ProductListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Product.objects.prefetch_related('categories').all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cart, created = ShoppingCart.objects.get_or_create(customer=self.request.user)
+        context['cart_items'] = cart.prepurchase_set.all().count()
+        return context
 
 
 class ProductDetailView(LoginRequiredMixin, DetailView):
@@ -34,12 +41,6 @@ class ProductCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['cart_items'] = self.request.user.cart.prepurchase_set.all().count()
-        return context
-
 
 class ProductEditView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = Product

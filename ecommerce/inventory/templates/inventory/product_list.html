@@ -1,17 +1,32 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Product List{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- Left-aligned Title -->
         <h2>Our Products</h2>
 
-        <!-- Add Product Button, visible only to superusers -->
-        {% if user.is_staff %}
-            <a href="{% url 'inventory:product_add' %}" class="btn btn-success">Add Product</a>
-        {% endif %}
+        <!-- Right-aligned Add Product Button and Shopping Cart -->
+        <div class="d-flex align-items-center ml-auto">
+            {% if user.is_staff %}
+                <a href="{% url 'inventory:product_add' %}" class="btn btn-success mr-3">Add Product</a>
+            {% endif %}
+
+            <a href="{% url 'purchasing:shopping_cart' %}" class="position-relative">
+                <img src="{% static 'images/cart-icon.png' %}" alt="Cart" style="width: 50px;">
+                {% if cart_items %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ cart_items }}
+                    </span>
+                {% endif %}
+            </a>
+        </div>
     </div>
+
+
 
     <!-- Scrollable Product List Container -->
     <div class="product-list-container">
