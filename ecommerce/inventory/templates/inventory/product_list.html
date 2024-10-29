@@ -1,69 +1,169 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Product List{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 pb-5" style="padding-bottom: 80px;">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Our Products</h2>
-
-        <!-- Add Product Button, visible only to superusers -->
-        {% if user.is_staff %}
-            <a href="{% url 'inventory:product_add' %}" class="btn btn-success">Add Product</a>
-        {% endif %}
-    </div>
-
-    <!-- Scrollable Product List Container -->
-    <div class="product-list-container">
-        <div class="d-flex flex-wrap">
-            {% for product in products %}
-            <div class="product-card">
-                <div class="card h-100 shadow-sm">
-                    <img src="https://via.placeholder.com/200x150.png?text=Product+Image" class="card-img-top" alt="Product Image" style="height: 200px; object-fit: cover;">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text mb-1"><strong>Categories:</strong>
-                            {% for category in product.categories.all %}
-                                {{ category.name }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </p>
-                        <p class="card-text mb-1"><strong>Price:</strong> ${{ product.price }}</p>
-                        <p class="card-text mb-1"><strong>Stock:</strong> {{ product.quantity }}</p>
-                        <p class="card-text"><strong>Popularity:</strong> {{ product.popularity_score }}</p>
-                    </div>
-                    <div class="card-footer text-center">
-                        <a href="{% url 'inventory:product_detail' product.pk %}" class="btn btn-primary">View Details</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+        <div class="d-flex align-items-center ml-auto">
+            {% if user.is_staff %}
+                <a href="{% url 'inventory:product_add' %}" class="btn btn-success mr-3">Add Product</a>
+            {% endif %}
+            <a href="{% url 'purchasing:shopping_cart' %}" class="position-relative">
+                <img src="{% static 'images/cart-icon.png' %}" alt="Cart" style="width: 50px;">
+                {% if cart_items %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ cart_items }}
+                    </span>
+                {% endif %}
+            </a>
         </div>
     </div>
 
-    <!-- Pagination controls -->
-    <div class="d-flex justify-content-center mt-5 fixed-bottom pb-1 pt-1 card h-10 shadow-sm">
-        <span class="align-self-center">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    <!-- Product List Container with Bootstrap Row and Columns -->
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-3 mb-4 d-flex">
+            <div class="card h-100 shadow-sm position-relative w-100">
+                <!-- Product Image with Overlay -->
+                <div class="product-image-wrapper">
+                    <img src="{% static 'images/cart-icon.png' %}" class="card-img-top product-image" alt="Product Image" style="height: 200px; object-fit: cover;">
+                    <div class="add-to-cart-overlay" onclick="openAddToCartModal({{ product.id }})">
+                        <span class="add-to-cart-text">Add to Cart</span>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text mb-1"><strong>Categories:</strong>
+                        {% for category in product.categories.all %}
+                            {{ category.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                    <p class="card-text mb-1"><strong>Price:</strong> ${{ product.price }}</p>
+                    <p class="card-text mb-1"><strong>Stock:</strong> {{ product.quantity }}</p>
+                    <p class="card-text"><strong>Popularity:</strong> {{ product.popularity_score }}</p>
+                </div>
+
+                <div class="card-footer text-center">
+                    <a href="{% url 'inventory:product_detail' product.pk %}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Pagination Panel at the Bottom -->
+<div class="d-flex justify-content-center align-items-center fixed-bottom pb-2 pt-2 bg-light shadow-sm">
+    <span class="align-self-center mr-3">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    <div class="d-inline-flex">
         {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-primary btn-sm mx-2">Previous</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-primary btn-sm mx-1">← Prev</a>
         {% endif %}
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-primary btn-sm mx-2">Next</a>
+            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-primary btn-sm mx-1">Next →</a>
         {% endif %}
     </div>
-
 </div>
+
+<!-- Modal for Add to Cart -->
+<div class="modal fade" id="addToCartModal" tabindex="-1" role="dialog" aria-labelledby="addToCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="addToCartModalContent">
+            <!-- Content will be loaded here via AJAX -->
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS for Product Image Overlay -->
+<style>
+.product-image-wrapper {
+    position: relative;
+}
+
+.product-image {
+    transition: opacity 0.3s ease;
+}
+
+.add-to-cart-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.add-to-cart-text {
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.product-image-wrapper:hover .add-to-cart-overlay {
+    opacity: 1;
+}
+
+.product-image-wrapper:hover .product-image {
+    opacity: 0.7;
+}
+</style>
 {% endblock %}
 
-<style>
-    /* Scrollable container with fixed height */
-    .product-list-container {
-        max-height: 600px; /* Set the desired height */
-        overflow-y: auto;
-    }
-    /* Each product card has a fixed width to ensure 5 items per row */
-    .product-card {
-        width: 20%; /* 20% width for 5 items per row */
-        padding: 10px;
-        box-sizing: border-box;
-    }
-</style>
+
+{% block scripts %}
+<script>
+function openAddToCartModal(productId) {
+    fetch(`/add-to-cart-modal/${productId}/`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('addToCartModalContent').innerHTML = html;
+            $('#addToCartModal').modal('show');
+            document.getElementById('prepurchaseForm').onsubmit = function(e) {
+                e.preventDefault();
+                submitPrepurchaseForm(productId);
+            };
+        })
+        .catch(error => {
+            console.error("Error fetching the modal content:", error);
+        });
+}
+
+function submitPrepurchaseForm(productId) {
+    const form = document.getElementById('prepurchaseForm');
+    const formData = new FormData(form);
+
+    fetch(`/add-to-cart-modal/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Redirect to the product list page on success
+            window.location.href = "{% url 'inventory:products' %}";
+        } else {
+            // Display error in the error container
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = data.errors.quantity.join("<br>");  // Format error message
+            errorContainer.classList.remove("d-none");
+        }
+    })
+    .catch(error => console.error('Error adding item to cart:', error));
+}
+</script>
+{% endblock %}
+

@@ -16,6 +16,7 @@
                         {{ form.as_p }}
                         <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
                     </form>
+                    <a href="{% url 'inventory:product_detail' object.id %}" class="btn btn-secondary btn-block mt-3">Cancel</a>
                 </div>
             </div>
         </div>
