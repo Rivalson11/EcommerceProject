@@ -1,0 +1,12 @@
+<!-- purchasing/templates/purchasing/purchase_complete.html -->
+{% extends "core/base.html" %}
+
+{% block title %}Purchase Complete{% endblock %}
+
+{% block content %}
+<div class="container mt-4 text-center">
+    <h2>Thank you for your purchase!</h2>
+    <p>Your order has been processed successfully.</p>
+    <a href="{% url 'inventory:products' %}" class="btn btn-primary mt-4">Continue Shopping</a>
+</div>
+{% endblock %}

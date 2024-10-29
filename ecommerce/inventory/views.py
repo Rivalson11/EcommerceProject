@@ -4,6 +4,7 @@ from django.views.generic import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from core.mixins import AdminRequiredMixin
+from purchasing.models import ShoppingCart
 from .forms import ProductForm
 
 from .models import Product
@@ -13,13 +14,19 @@ class ProductListView(LoginRequiredMixin, ListView):
     model = Product
     template_name = 'inventory/products.html'  # Specify the template
     context_object_name = 'products'  # Name for the list in the template
-    paginate_by = 10  # Optional: add pagination if there are many products
+    paginate_by = 12  # Optional: add pagination if there are many products
 
     def get_queryset(self):
         return Product.objects.prefetch_related('categories').all()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cart, created = ShoppingCart.objects.get_or_create(customer=self.request.user)
+        context['cart_items'] = cart.prepurchase_set.all().count()
+        return context
 
-class ProductDetailView(DetailView):
+
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'inventory/product_detail.html'  # Template to render
     context_object_name = 'product'  # Use 'product' as the context variable
@@ -35,8 +42,7 @@ class ProductCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
 
-
-class ProductEditView(UpdateView):
+class ProductEditView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = "inventory/product_edit.html"
@@ -45,7 +51,7 @@ class ProductEditView(UpdateView):
         return reverse_lazy('inventory:products')
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
     model = Product
     template_name = "inventory/product_confirm_delete.html"
 
