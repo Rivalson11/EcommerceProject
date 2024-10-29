@@ -136,6 +136,10 @@ class PurchaseView(LoginRequiredMixin, View):
             ]
             Purchase.objects.bulk_create(purchases)  # Save all purchases in bulk
 
+            for item in cart_items:
+                item.product.popularity_score = F('popularity_score') + item.quantity
+                item.product.save(update_fields=['popularity_score'])
+
             # Delete the PrePurchase items and the ShoppingCart
             cart_items.delete()
             cart.delete()
