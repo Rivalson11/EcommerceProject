@@ -1,5 +1,7 @@
+import os
 import time
 
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.storage import default_storage
 from django.db.models import Case, When, Value, FloatField, ExpressionWrapper, Sum
@@ -142,13 +144,17 @@ class CheckTaskStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
         try:
             result = TaskResult.objects.get(task_id=task_id)
             if result.status == "SUCCESS":
-                file_path = result.result.strip('"')
-                with default_storage.open(file_path, "rb") as f:
+                # Get the relative path returned by the task
+                relative_file_path = result.result.strip('"')
+                full_file_path = os.path.join(settings.MEDIA_ROOT, relative_file_path)
+
+                # Open the file for download
+                with default_storage.open(full_file_path, "rb") as f:
                     response = HttpResponse(
                         f,
                         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     )
-                    response["Content-Disposition"] = f'attachment; filename="{file_path}"'
+                    response["Content-Disposition"] = f'attachment; filename="{os.path.basename(full_file_path)}"'
                     return response
             elif result.status == "FAILURE":
                 return JsonResponse({"status": "error", "message": "Task failed"}, status=500)
