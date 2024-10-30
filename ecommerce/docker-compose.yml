@@ -7,7 +7,7 @@ services:
       sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
-      - db_data:/app/db.sqlite3  # Persistent volume for SQLite database
+      - db_data:/app/db  # Mount the directory for SQLite database
     ports:
       - "8000:8000"
     depends_on:
