@@ -17,6 +17,3 @@ class ShoppingCart(models.Model):
 
 class PrePurchase(Purchase):
     shopping_cart = models.ForeignKey(ShoppingCart, on_delete=models.CASCADE)
-
-
-

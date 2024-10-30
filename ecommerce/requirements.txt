@@ -1,0 +1,5 @@
+Django==4.2.13
+celery==5.2.3
+django-celery-results
+pandas
+openpyxl
