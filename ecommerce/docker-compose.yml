@@ -5,31 +5,20 @@ services:
       sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
-      - media_data:/app/media  # Shared volume for media files
+      - media_data:/app/media  # Shared volume for media files, including database
     ports:
       - "8000:8000"
     depends_on:
       - rabbitmq
-    environment:
-      - DEBUG=1
 
   celery:
     build: .
     command: celery -A ecommerce worker --loglevel=info
     volumes:
       - .:/app
-      - media_data:/app/media  # Shared volume for media files
+      - media_data:/app/media  # Shared volume for media files, including database
     depends_on:
       - rabbitmq
-    environment:
-      - DEBUG=1
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
 
 volumes:
-  db_data:
-  media_data:  # Shared volume definition for media files
+  media_data:  # Define the shared volume
