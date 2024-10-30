@@ -9,4 +9,6 @@ urlpatterns = [
     path('product/add/', views.ProductCreateView.as_view(), name='product_add'),
     path('product/<int:pk>/edit/', views.ProductEditView.as_view(), name='product_edit'),
     path('product/<int:pk>/delete/', views.ProductDeleteView.as_view(), name='product_delete'),
+    path('generate-report/<str:report_type>/', views.DownloadReportView.as_view(), name='download_report'),
+    path('download-report/<str:task_id>/', views.CheckTaskStatusView.as_view(), name='check_task_status'),
 ]

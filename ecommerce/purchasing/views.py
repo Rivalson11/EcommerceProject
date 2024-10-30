@@ -12,13 +12,27 @@ from .forms import PrePurchaseForm
 from .models import Product, ShoppingCart, PrePurchase, Purchase
 
 
-@login_required
-def add_to_cart_modal(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    cart, created = ShoppingCart.objects.get_or_create(customer=request.user)
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.db import transaction
+from django.db.models import F
+from .models import Product, ShoppingCart, PrePurchase
+from .forms import PrePurchaseForm
 
-    if request.method == 'POST':
+
+class AddToCartModalView(LoginRequiredMixin, View):
+    def get(self, request, product_id):
+        product = get_object_or_404(Product, id=product_id)
+        form = PrePurchaseForm(initial={'quantity': 1})
+        return render(request, 'purchasing/prepurchase_form.html', {'form': form, 'product': product})
+
+    def post(self, request, product_id):
+        product = get_object_or_404(Product, id=product_id)
+        cart, created = ShoppingCart.objects.get_or_create(customer=request.user)
         form = PrePurchaseForm(request.POST, product=product)
+
         if form.is_valid():
             quantity_to_add = form.cleaned_data['quantity']
 
@@ -43,10 +57,6 @@ def add_to_cart_modal(request, product_id):
         else:
             return JsonResponse({'success': False, 'errors': form.errors}, status=400)
 
-    else:
-        form = PrePurchaseForm(initial={'quantity': 1})
-
-    return render(request, 'purchasing/prepurchase_form.html', {'form': form, 'product': product})
 
 
 class CartItemDeleteView(LoginRequiredMixin, DeleteView):

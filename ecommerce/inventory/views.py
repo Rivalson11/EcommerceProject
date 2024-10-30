@@ -8,7 +8,10 @@ from django.views.generic.list import ListView
 from core.mixins import AdminRequiredMixin
 from purchasing.models import ShoppingCart, PrePurchase, Purchase
 from .forms import ProductForm
-from .models import Product, ProductCategories
+from .models import Product
+import time
+from django.views import View
+
 
 PRE_PURCHASE_WEIGHT = 0.5
 PURCHASE_WEIGHT = 1
@@ -106,3 +109,48 @@ class ProductDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('inventory:products')
+
+
+# inventory/views.py
+
+from django.http import JsonResponse, HttpResponse
+from django_celery_results.models import TaskResult
+from django.core.files.storage import default_storage
+from .tasks import generate_stock_report, generate_popularity_report, generate_category_report
+
+
+class DownloadReportView(LoginRequiredMixin, AdminRequiredMixin, View):
+    def get(self, request, report_type):
+        # Start the appropriate task based on the report type
+        if report_type == 'stock':
+            task = generate_stock_report.delay()
+        elif report_type == 'popularity':
+            task = generate_popularity_report.delay()
+        elif report_type == 'category':
+            task = generate_category_report.delay()
+        else:
+            return JsonResponse({'error': 'Invalid report type'}, status=400)
+
+        time.sleep(2)  # Brief pause before polling begins
+        return JsonResponse({'task_id': task.id})
+
+
+class CheckTaskStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
+    def get(self, request, task_id):
+        try:
+            result = TaskResult.objects.get(task_id=task_id)
+            if result.status == 'SUCCESS':
+                file_path = result.result.strip('"')
+                with default_storage.open(file_path, 'rb') as f:
+                    response = HttpResponse(
+                        f,
+                        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    )
+                    response['Content-Disposition'] = f'attachment; filename="{file_path}"'
+                    return response
+            elif result.status == 'FAILURE':
+                return JsonResponse({'status': 'error', 'message': 'Task failed'}, status=500)
+            else:
+                return JsonResponse({'status': 'pending'}, status=202)
+        except TaskResult.DoesNotExist:
+            return JsonResponse({'status': 'not found'}, status=404)

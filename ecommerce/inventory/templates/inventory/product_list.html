@@ -9,6 +9,13 @@
         <h2>Our Products</h2>
         <div class="d-flex align-items-center ml-auto">
             {% if user.is_staff %}
+
+                <!-- Dropdown Button for Report Downloads -->
+                <button class="btn btn-secondary mr-2" onclick="downloadReport('stock', this)">Download Stock Report</button>
+                <button class="btn btn-secondary mr-2" onclick="downloadReport('popularity', this)">Download Popularity Report</button>
+                <button class="btn btn-secondary mr-2" onclick="downloadReport('category', this)">Download Category Report</button>
+
+
                 <a href="{% url 'inventory:product_add' %}" class="btn btn-success mr-3">Add Product</a>
             {% endif %}
             <a href="{% url 'purchasing:shopping_cart' %}" class="position-relative">
@@ -117,6 +124,8 @@
     </div>
 </div>
 
+<div id="loadingMessage" style="display: none; margin-top: 10px;">Generating report, please wait...</div>
+<div id="errorMessage" style="display: none; color: red; margin-top: 10px;"></div>
 <!-- Custom CSS for Product Image Overlay -->
 <style>
 .product-image-wrapper {
@@ -162,46 +171,109 @@
 
 {% block scripts %}
 <script>
-function openAddToCartModal(productId) {
-    fetch(`/add-to-cart-modal/${productId}/`)
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('addToCartModalContent').innerHTML = html;
-            $('#addToCartModal').modal('show');
-            document.getElementById('prepurchaseForm').onsubmit = function(e) {
-                e.preventDefault();
-                submitPrepurchaseForm(productId);
-            };
+    function openAddToCartModal(productId) {
+        fetch(`/add-to-cart-modal/${productId}/`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('addToCartModalContent').innerHTML = html;
+                $('#addToCartModal').modal('show');
+                document.getElementById('prepurchaseForm').onsubmit = function(e) {
+                    e.preventDefault();
+                    submitPrepurchaseForm(productId);
+                };
+            })
+            .catch(error => {
+                console.error("Error fetching the modal content:", error);
+            });
+    }
+
+    function submitPrepurchaseForm(productId) {
+        const form = document.getElementById('prepurchaseForm');
+        const formData = new FormData(form);
+
+        fetch(`/add-to-cart-modal/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect to the product list page on success
+                window.location.href = "{% url 'inventory:products' %}";
+            } else {
+                // Display error in the error container
+                const errorContainer = document.getElementById('errorContainer');
+                errorContainer.innerHTML = data.errors.quantity.join("<br>");  // Format error message
+                errorContainer.classList.remove("d-none");
+            }
+        })
+        .catch(error => console.error('Error adding item to cart:', error));
+    }
+
+
+function downloadReport(reportType, button) {
+    // Disable the button that was clicked
+    button.disabled = true;
+
+    document.getElementById("loadingMessage").style.display = "block";
+    document.getElementById("errorMessage").style.display = "none";
+
+    fetch(`/generate-report/${reportType}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.task_id) {
+                checkTaskStatus(data.task_id, button);
+            } else {
+                showError("Failed to start report generation.");
+                button.disabled = false; // Re-enable the button on error
+            }
         })
         .catch(error => {
-            console.error("Error fetching the modal content:", error);
+            showError("Error initiating report: " + error.message);
+            button.disabled = false; // Re-enable the button on error
         });
 }
 
-function submitPrepurchaseForm(productId) {
-    const form = document.getElementById('prepurchaseForm');
-    const formData = new FormData(form);
+function checkTaskStatus(taskId, button) {
+    fetch(`/download-report/${taskId}/`)
+        .then(response => {
+            if (response.status === 200) {
+                return response.blob().then(blob => {
+                    // Create a download link and trigger the download
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = "report.xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
 
-    fetch(`/add-to-cart-modal/${productId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Redirect to the product list page on success
-            window.location.href = "{% url 'inventory:products' %}";
-        } else {
-            // Display error in the error container
-            const errorContainer = document.getElementById('errorContainer');
-            errorContainer.innerHTML = data.errors.quantity.join("<br>");  // Format error message
-            errorContainer.classList.remove("d-none");
-        }
-    })
-    .catch(error => console.error('Error adding item to cart:', error));
+                    // Re-enable the download button after download begins
+                    button.disabled = false;
+                });
+            } else if (response.status === 202) {
+                // Task is still pending, recheck after a short delay
+                setTimeout(() => checkTaskStatus(taskId, button), 2000);
+            } else {
+                response.json().then(data => {
+                    showError(data.message || "Error checking task status.");
+                    button.disabled = false; // Re-enable the button on error
+                });
+            }
+        })
+        .catch(error => {
+            showError("Error checking task status: " + error.message);
+            button.disabled = false; // Re-enable the button on error
+        });
+}
+
+function showError(message) {
+    document.getElementById("loadingMessage").style.display = "none";
+    document.getElementById("errorMessage").style.display = "block";
+    document.getElementById("errorMessage").textContent = message;
 }
 </script>
 {% endblock %}

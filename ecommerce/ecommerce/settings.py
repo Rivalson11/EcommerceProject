@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_results',
 
     # Custom apps
     "users",
@@ -121,6 +122,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672//'  # Using RabbitMQ as the broker
+CELERY_RESULT_BACKEND = 'django-db'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -129,6 +132,12 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",  # BASE_DIR should be the root project directory
 ]
+
+# settings.py
+
+MEDIA_ROOT = '/app/media'
+MEDIA_URL = '/media/'
+
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 # Default primary key field type
