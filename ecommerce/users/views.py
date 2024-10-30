@@ -3,7 +3,12 @@ from django.urls import reverse_lazy
 from django.contrib.auth import login
 from .forms import CustomUserCreationForm
 from .models import User
+from django.shortcuts import redirect
+from django.urls import reverse
 
+
+def redirect_to_login(request):
+    return redirect(reverse('login'))
 
 class RegisterView(CreateView):
     model = User
