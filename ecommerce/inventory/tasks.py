@@ -1,8 +1,8 @@
-from io import BytesIO
+import os
 
 import pandas as pd
 from celery import shared_task
-from django.core.files.storage import default_storage
+from django.conf import settings
 from django.db.models import Sum
 
 from .models import Product, ProductCategories
@@ -13,15 +13,18 @@ def generate_stock_report():
     # Items needing restock
     products = Product.objects.filter(quantity__lt=5).values("product_id", "name", "quantity", "price")
     df = pd.DataFrame(products)
-    output = BytesIO()
-    df.to_excel(output, index=False, engine="openpyxl")
-    output.seek(0)
+    # Set path to save the report
+    report_directory = os.path.join(settings.MEDIA_ROOT, 'reports')
+    report_path = os.path.join(report_directory, 'stock_report.xlsx')
 
-    path = "reports/stock_report.xlsx"
-    with default_storage.open(path, "wb") as f:
-        f.write(output.read())
+    # Ensure the reports directory exists
+    os.makedirs(report_directory, exist_ok=True)
 
-    return path
+    # Save the DataFrame to an Excel file
+    df.to_excel(report_path, index=False, engine='openpyxl')
+
+    # Return relative path for TaskResult
+    return os.path.relpath(report_path, settings.MEDIA_ROOT)
 
 
 @shared_task
@@ -31,15 +34,18 @@ def generate_popularity_report():
         "product_id", "name", "popularity_score", "price"
     )
     df = pd.DataFrame(products)
-    output = BytesIO()
-    df.to_excel(output, index=False, engine="openpyxl")
-    output.seek(0)
+    # Set path to save the report
+    report_directory = os.path.join(settings.MEDIA_ROOT, 'reports')
+    report_path = os.path.join(report_directory, 'stock_report.xlsx')
 
-    path = "reports/popularity_report.xlsx"
-    with default_storage.open(path, "wb") as f:
-        f.write(output.read())
+    # Ensure the reports directory exists
+    os.makedirs(report_directory, exist_ok=True)
 
-    return path
+    # Save the DataFrame to an Excel file
+    df.to_excel(report_path, index=False, engine='openpyxl')
+
+    # Return relative path for TaskResult
+    return os.path.relpath(report_path, settings.MEDIA_ROOT)
 
 
 @shared_task
@@ -48,12 +54,15 @@ def generate_category_report():
     categories = ProductCategories.objects.annotate(total_popularity=Sum("product__popularity_score"))
 
     df = pd.DataFrame(categories.values())
-    output = BytesIO()
-    df.to_excel(output, index=False, engine="openpyxl")
-    output.seek(0)
+    # Set path to save the report
+    report_directory = os.path.join(settings.MEDIA_ROOT, 'reports')
+    report_path = os.path.join(report_directory, 'stock_report.xlsx')
 
-    path = "reports/category_report.xlsx"
-    with default_storage.open(path, "wb") as f:
-        f.write(output.read())
+    # Ensure the reports directory exists
+    os.makedirs(report_directory, exist_ok=True)
 
-    return path
+    # Save the DataFrame to an Excel file
+    df.to_excel(report_path, index=False, engine='openpyxl')
+
+    # Return relative path for TaskResult
+    return os.path.relpath(report_path, settings.MEDIA_ROOT)
