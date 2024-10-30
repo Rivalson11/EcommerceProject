@@ -5,7 +5,7 @@ from .views import (
     ShoppingCartView,
     PurchaseView,
     CartItemDeleteView,
-    AddToCartModalView,
+    AddToCartModalView, MyPurchasesView,
 )
 
 app_name = "purchasing"
@@ -28,4 +28,5 @@ urlpatterns = [
         CartItemDeleteView.as_view(),
         name="cart_item_delete",
     ),
+    path('my-purchases/', MyPurchasesView.as_view(), name='my_purchases'),
 ]

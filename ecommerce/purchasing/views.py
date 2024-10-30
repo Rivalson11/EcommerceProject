@@ -15,6 +15,17 @@ from .models import Product, ShoppingCart, PrePurchase
 from .models import Purchase
 
 
+class MyPurchasesView(LoginRequiredMixin, ListView):
+    model = Purchase
+    template_name = "purchasing/my_purchases.html"
+    context_object_name = "purchases"
+
+    def get_queryset(self):
+        qs = Purchase.objects.filter(customer=self.request.user).select_related('product').order_by('-date')
+        qs = qs.annotate(total_value=ExpressionWrapper(F("product__price") * F("quantity"), output_field=FloatField()))
+        return qs
+
+
 class AddToCartModalView(LoginRequiredMixin, View):
     def get(self, request, product_id):
         product = get_object_or_404(Product, id=product_id)
