@@ -1,25 +1,18 @@
-from django.contrib.auth.decorators import login_required
+from django.db.models import FloatField, ExpressionWrapper, Sum
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.db.models import F, FloatField, ExpressionWrapper, Sum
+from django.db.models import F
+from django.db.models import FloatField, ExpressionWrapper, Sum
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, render
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DeleteView
 
 from .forms import PrePurchaseForm
-from .models import Product, ShoppingCart, PrePurchase, Purchase
-
-
-from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
-from django.db import transaction
-from django.db.models import F
 from .models import Product, ShoppingCart, PrePurchase
-from .forms import PrePurchaseForm
+from .models import Purchase
 
 
 class AddToCartModalView(LoginRequiredMixin, View):

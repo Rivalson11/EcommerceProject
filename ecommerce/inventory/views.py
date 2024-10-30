@@ -1,17 +1,25 @@
+import time
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.files.storage import default_storage
 from django.db.models import Case, When, Value, FloatField, ExpressionWrapper, Sum
+from django.http import JsonResponse, HttpResponse
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from django_celery_results.models import TaskResult
 
 from core.mixins import AdminRequiredMixin
 from purchasing.models import ShoppingCart, PrePurchase, Purchase
 from .forms import ProductForm
 from .models import Product
-import time
-from django.views import View
-
+from .tasks import (
+    generate_stock_report,
+    generate_popularity_report,
+    generate_category_report,
+)
 
 PRE_PURCHASE_WEIGHT = 0.5
 PURCHASE_WEIGHT = 1
@@ -19,9 +27,9 @@ PURCHASE_WEIGHT = 1
 
 class ProductListView(LoginRequiredMixin, ListView):
     model = Product
-    template_name = "inventory/product_list.html"  # Specify the template
-    context_object_name = "products"  # Name for the list in the template
-    paginate_by = 12  # Optional: add pagination if there are many products
+    template_name = "inventory/product_list.html"
+    context_object_name = "products"
+    paginate_by = 12
 
     def get_queryset(self):
         return Product.objects.prefetch_related("categories").all()
@@ -81,8 +89,8 @@ class ProductListView(LoginRequiredMixin, ListView):
 
 class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
-    template_name = "inventory/product_detail.html"  # Template to render
-    context_object_name = "product"  # Use 'product' as the context variable
+    template_name = "inventory/product_detail.html"
+    context_object_name = "product"
 
 
 class ProductCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
@@ -111,18 +119,6 @@ class ProductDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy("inventory:products")
-
-
-# inventory/views.py
-
-from django.http import JsonResponse, HttpResponse
-from django_celery_results.models import TaskResult
-from django.core.files.storage import default_storage
-from .tasks import (
-    generate_stock_report,
-    generate_popularity_report,
-    generate_category_report,
-)
 
 
 class DownloadReportView(LoginRequiredMixin, AdminRequiredMixin, View):
