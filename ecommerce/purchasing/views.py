@@ -19,6 +19,7 @@ class MyPurchasesView(LoginRequiredMixin, ListView):
     model = Purchase
     template_name = "purchasing/my_purchases.html"
     context_object_name = "purchases"
+    paginate_by = 12
 
     def get_queryset(self):
         qs = Purchase.objects.filter(customer=self.request.user).select_related('product').order_by('-date')
