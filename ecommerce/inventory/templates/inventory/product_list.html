@@ -11,13 +11,14 @@
             {% if user.is_staff %}
 
                 <!-- Dropdown Button for Report Downloads -->
-                <button class="btn btn-secondary mr-2" onclick="downloadReport('stock', this)">Download Stock Report</button>
-                <button class="btn btn-secondary mr-2" onclick="downloadReport('popularity', this)">Download Popularity Report</button>
-                <button class="btn btn-secondary mr-2" onclick="downloadReport('category', this)">Download Category Report</button>
+                <button class="btn btn-secondary mr-2" onclick="downloadReport('stock', this)">Stock Report</button>
+                <button class="btn btn-secondary mr-2" onclick="downloadReport('popularity', this)">Popularity Report</button>
+                <button class="btn btn-secondary mr-2" onclick="downloadReport('category', this)">Category Report</button>
 
 
                 <a href="{% url 'inventory:product_add' %}" class="btn btn-success mr-3">Add Product</a>
             {% endif %}
+            <a href="{% url 'purchasing:my_purchases' %}" class="btn btn-info mr-3">My Purchases</a>
             <a href="{% url 'purchasing:shopping_cart' %}" class="position-relative">
                 <img src="{% static 'images/cart-icon.png' %}" alt="Cart" style="width: 50px;">
                 {% if cart_items %}
