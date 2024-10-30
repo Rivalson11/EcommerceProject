@@ -2,7 +2,7 @@
 python manage.py migrate
 
 # Load fixture data
-python manage.py loaddata your_app/fixtures/initial_data.json
+python manage.py loaddata fixtures/initial_data.json
 
 # Collect static files
 python manage.py collectstatic --noinput
