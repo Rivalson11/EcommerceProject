@@ -43,16 +43,13 @@ def generate_popularity_report():
 @shared_task
 def generate_category_report():
     # Category breakdown by popularity
-    categories = ProductCategories.objects.all()
-    data = []
-    for category in categories:
-        popularity_score = Product.objects.filter(categories=category).aggregate(total_popularity=Sum('popularity_score'))
-        data.append({
-            'Category': category.name,
-            'Total Popularity Score': popularity_score['total_popularity'],
-        })
+    categories = ProductCategories.objects.annotate(
+        total_popularity=Sum('product__popularity_score')
+    )
 
-    df = pd.DataFrame(data)
+    print(categories.values())
+
+    df = pd.DataFrame(categories.values())
     output = BytesIO()
     df.to_excel(output, index=False, engine='openpyxl')
     output.seek(0)

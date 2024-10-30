@@ -77,11 +77,9 @@ class CartItemDeleteView(LoginRequiredMixin, DeleteView):
         product = self.object.product
         quantity_to_restock = self.object.quantity
 
-        # Perform the restock
-        with transaction.atomic():
-            product.quantity = F('quantity') + quantity_to_restock
-            product.save(update_fields=['quantity'])
-            return super().form_valid(form)
+        product.quantity = F('quantity') + quantity_to_restock
+        product.save()
+        return super().form_valid(form)
 
 
 class ShoppingCartView(LoginRequiredMixin, ListView):
