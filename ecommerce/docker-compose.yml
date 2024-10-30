@@ -6,6 +6,7 @@ services:
     volumes:
       - .:/app
       - db_data:/app/db  # Shared database volume
+      - media_data:/app/media
     ports:
       - "8000:8000"
     depends_on:
@@ -19,6 +20,7 @@ services:
     volumes:
       - .:/app
       - db_data:/app/db  # Shared database volume
+      - media_data:/app/media
     depends_on:
       - rabbitmq
     environment:
@@ -32,3 +34,4 @@ services:
 
 volumes:
   db_data:  # Shared volume definition for SQLite database
+  media_data:
