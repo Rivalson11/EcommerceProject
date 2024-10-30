@@ -26,6 +26,19 @@ This project is an e-commerce product inventory and recommendation system built 
    ```
 4. Access the project in your browser at `http://127.0.0.1:8000`.
 
+5. load initial data with 
+   ```bash
+   python manage.py loaddata fixtures/initial_data.json
+   ```
+
+## Codespace Setup
+To review the project in GitHub Codespaces:
+
+### Steps
+1. Go to the code_space branch on GitHub.
+2. Open the branch in GitHub Codespaces by navigating to Code > Codespaces > Create codespace on code_space.
+3. cd into eccomerce and run docker compose up Codespace will initialize automatically, running migrations and loading the fixture data for a ready-to-review environment.
+
 ### Notes
 - Ensure that RabbitMQ and Celery are running, as they are critical for asynchronous task management.
 - SQLite is used for local storage; ensure Docker volume mapping is set up for persistent data.
