@@ -9,21 +9,35 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('product_id', models.CharField(default=inventory.models.generate_unique_key, max_length=10, unique=True)),
-                ('name', models.CharField(max_length=100)),
-                ('category', models.CharField(max_length=50)),
-                ('price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('quantity', models.IntegerField()),
-                ('popularity_score', models.IntegerField(default=0)),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "product_id",
+                    models.CharField(
+                        default=inventory.models.generate_unique_key,
+                        max_length=10,
+                        unique=True,
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("category", models.CharField(max_length=50)),
+                ("price", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("quantity", models.IntegerField()),
+                ("popularity_score", models.IntegerField(default=0)),
+                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
             ],
         ),
     ]

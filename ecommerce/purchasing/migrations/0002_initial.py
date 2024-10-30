@@ -11,19 +11,19 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('purchasing', '0001_initial'),
-        ('inventory', '0001_initial'),
+        ("purchasing", "0001_initial"),
+        ("inventory", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='purchase',
-            name='customer',
+            model_name="purchase",
+            name="customer",
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
-            model_name='purchase',
-            name='product',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='inventory.product'),
+            model_name="purchase",
+            name="product",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to="inventory.product"),
         ),
     ]

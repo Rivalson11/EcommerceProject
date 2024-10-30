@@ -6,28 +6,36 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventory', '0001_initial'),
+        ("inventory", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ProductCategories',
+            name="ProductCategories",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.AlterModelOptions(
-            name='product',
-            options={'ordering': ['-popularity_score', 'name']},
+            name="product",
+            options={"ordering": ["-popularity_score", "name"]},
         ),
         migrations.RemoveField(
-            model_name='product',
-            name='category',
+            model_name="product",
+            name="category",
         ),
         migrations.AddField(
-            model_name='product',
-            name='categories',
-            field=models.ManyToManyField(to='inventory.productcategories'),
+            model_name="product",
+            name="categories",
+            field=models.ManyToManyField(to="inventory.productcategories"),
         ),
     ]

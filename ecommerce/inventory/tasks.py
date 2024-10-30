@@ -14,11 +14,11 @@ def generate_stock_report():
     products = Product.objects.filter(quantity__lt=5).values("product_id", "name", "quantity", "price")
     df = pd.DataFrame(products)
     output = BytesIO()
-    df.to_excel(output, index=False, engine='openpyxl')
+    df.to_excel(output, index=False, engine="openpyxl")
     output.seek(0)
 
-    path = 'reports/stock_report.xlsx'
-    with default_storage.open(path, 'wb') as f:
+    path = "reports/stock_report.xlsx"
+    with default_storage.open(path, "wb") as f:
         f.write(output.read())
 
     return path
@@ -27,14 +27,16 @@ def generate_stock_report():
 @shared_task
 def generate_popularity_report():
     # Top 5 products by popularity score
-    products = Product.objects.order_by('-popularity_score')[:5].values("product_id", "name", "popularity_score", "price")
+    products = Product.objects.order_by("-popularity_score")[:5].values(
+        "product_id", "name", "popularity_score", "price"
+    )
     df = pd.DataFrame(products)
     output = BytesIO()
-    df.to_excel(output, index=False, engine='openpyxl')
+    df.to_excel(output, index=False, engine="openpyxl")
     output.seek(0)
 
-    path = 'reports/popularity_report.xlsx'
-    with default_storage.open(path, 'wb') as f:
+    path = "reports/popularity_report.xlsx"
+    with default_storage.open(path, "wb") as f:
         f.write(output.read())
 
     return path
@@ -43,19 +45,15 @@ def generate_popularity_report():
 @shared_task
 def generate_category_report():
     # Category breakdown by popularity
-    categories = ProductCategories.objects.annotate(
-        total_popularity=Sum('product__popularity_score')
-    )
-
-    print(categories.values())
+    categories = ProductCategories.objects.annotate(total_popularity=Sum("product__popularity_score"))
 
     df = pd.DataFrame(categories.values())
     output = BytesIO()
-    df.to_excel(output, index=False, engine='openpyxl')
+    df.to_excel(output, index=False, engine="openpyxl")
     output.seek(0)
 
-    path = 'reports/category_report.xlsx'
-    with default_storage.open(path, 'wb') as f:
+    path = "reports/category_report.xlsx"
+    with default_storage.open(path, "wb") as f:
         f.write(output.read())
 
     return path

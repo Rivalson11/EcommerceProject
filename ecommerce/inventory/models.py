@@ -3,8 +3,9 @@ import random
 import string
 from django.utils import timezone
 
+
 def generate_unique_key():
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    return "".join(random.choices(string.ascii_letters + string.digits, k=10))
 
 
 class ProductCategories(models.Model):
@@ -12,6 +13,7 @@ class ProductCategories(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Product(models.Model):
     product_id = models.CharField(max_length=10, default=generate_unique_key, unique=True)
@@ -24,11 +26,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ['-popularity_score', 'name']
+        ordering = ["-popularity_score", "name"]
 
     def __str__(self):
         return self.name
-
-
-
-
