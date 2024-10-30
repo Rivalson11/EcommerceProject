@@ -7,14 +7,10 @@ services:
       sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
-      - db_data:/app/db.sqlite3  # Persistent volume for SQLite database
     ports:
       - "8000:8000"
     depends_on:
       - rabbitmq
-    environment:
-      - DEBUG=1
-      - DJANGO_ENV=${DJANGO_ENV:-development}  # Uses 'development' if DJANGO_ENV is not set
 
   celery:
     build: .
@@ -23,16 +19,9 @@ services:
       - .:/app
     depends_on:
       - rabbitmq
-    environment:
-      - DEBUG=1
-      - DJANGO_ENV=${DJANGO_ENV:-development}
 
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"      # Standard RabbitMQ port
-      - "15672:15672"    # RabbitMQ management interface
-
-# Define the volume for the SQLite database
-volumes:
-  db_data:
+      - "5672:5672"
+      - "15672:15672"
