@@ -87,9 +87,10 @@ WSGI_APPLICATION = "ecommerce.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / "media" / "db" / "db.sqlite3",
+        'NAME': '/app/db/db.sqlite3',  # Make sure this matches your Docker volume
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
